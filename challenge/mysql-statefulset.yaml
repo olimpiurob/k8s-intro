@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: movies-mysql
+
+spec:
+  serviceName: movies-mysql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movies-mysql
+      tier: mysql
+  template:
+    metadata:
+      labels:
+        app: movies-mysql
+        tier: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:5.7.40
+          env:
+          - name: MYSQL_RANDOM_ROOT_PASSWORD
+            value: "yes"
+
+          - name: MYSQL_DATABASE
+            valueFrom:
+              secretKeyRef:
+                name: movies-secret
+                key: DATABASE
+
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: movies-secret
+                key: DATABASE_USER
+
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: movies-secret
+                key: DATABASE_PASSWORD
+
+          ports:
+          - containerPort: 3306
+            name: mysql
+
+          volumeMounts:
+          - name: movies-data
+            mountPath: /var/lib/mysql
+
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "100m"
+            limits:
+              memory: "2Gi"
+              cpu: "1"
+      # volumes:
+      #   - name: mysql-movies-data
+      #     persistentVolumeClaim:
+      #      claimName: movies-data
+  volumeClaimTemplates:
+  - metadata:
+      name: movies-data
+    spec:
+      storageClassName: ceph-block
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

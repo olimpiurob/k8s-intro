@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webserver-ing
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - instructor.65.109.43.242.nip.io
+    secretName: instructor.65.109.43.242.nip.io-tls
+  rules:
+  - host: instructor.65.109.43.242.nip.io
+    http:
+      paths:
+      - backend:
+          service:
+            name: movies-frontend-svc
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+      - backend:
+          service:
+            name: movies-backend-svc
+            port:
+              number: 8000
+        path: /api
+        pathType: Prefix

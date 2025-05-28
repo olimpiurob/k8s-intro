@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movies-backend
+  labels:
+    app: movies
+    tier: backend
+spec:
+  selector:
+    matchLabels:
+      app: movies
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: movies
+        tier: backend
+    spec:
+      containers:
+        - image: lbogdan/movies-api:v6
+          name: movies
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "2Gi"
+              cpu: "1"
+
+          ports:
+            - containerPort: 8000
+              name: movies
+          env:
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: movies-secret
+                  key: DATABASE_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: movies-secret
+                  key: DATABASE_PASSWORD
+          volumeMounts:
+          - name: config-volume
+            mountPath: /app/config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: config-json

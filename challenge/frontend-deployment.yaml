@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movies
+  labels:
+    app: movies
+    tier: frontend
+spec:
+  selector:
+    matchLabels:
+      app: movies
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: movies
+        tier: frontend
+    spec:
+      # nodeSelector:
+      #   kubernetes.io/hostname: k8s-cp-0
+      containers:
+        - image: lbogdan/movies:v2
+          name: movies
+          ports:
+            - containerPort: 80
+              name: movies
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "2Gi"
+              cpu: "1"

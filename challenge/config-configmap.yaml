@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-json
+data:
+  config.json: |
+    {
+      "database": {
+        "host": "movies-mysql-svc",
+        "name": "movies"
+      }
+    }
